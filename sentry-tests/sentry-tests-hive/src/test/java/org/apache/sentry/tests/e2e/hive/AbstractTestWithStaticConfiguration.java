@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.HashSet;
 
 import com.google.common.collect.Sets;
+import org.apache.sentry.provider.db.service.thrift.SentryPolicyService;
 import org.apache.sentry.tests.e2e.hive.fs.TestFSContants;
 import org.junit.After;
 import org.junit.Assert;
@@ -179,6 +180,7 @@ public abstract class AbstractTestWithStaticConfiguration {
   protected static SentrySrv sentryServer;
   protected static Configuration sentryConf;
   protected static boolean enableSentryHA = false;
+  protected static boolean enableSentryWeb = false;
   protected static Context context;
   protected final String semanticException = "SemanticException No valid privileges";
 
@@ -487,6 +489,13 @@ public abstract class AbstractTestWithStaticConfiguration {
     properties.put(ServerConfig.SENTRY_STORE_GROUP_MAPPING, ServerConfig.SENTRY_STORE_LOCAL_GROUP_MAPPING);
     properties.put(ServerConfig.SENTRY_STORE_GROUP_MAPPING_RESOURCE, policyFileLocation.getPath());
     properties.put(ServerConfig.RPC_MIN_THREADS, "3");
+    if (enableSentryWeb) {
+      properties.put(ServerConfig.SENTRY_WEB_ENABLE, "true");
+      properties.put(ServerConfig.SENTRY_WEB_SECURITY_TYPE, "NONE");
+      properties.put(ServerConfig.ALLOW_CONNECT, "hive");
+      properties.put(ServerConfig.ADMIN_GROUPS, "hive");
+      properties.put(ServerConfig.SENTRY_WEB_ADMIN_SERVLET_ENABLED, "true");
+    }
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       sentryConf.set(entry.getKey(), entry.getValue());
     }
